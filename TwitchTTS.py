@@ -309,11 +309,13 @@ class TTSReadThread(QThread):
                             # ssml_gender=texttospeech.SsmlVoiceGender.MALE
                         )
 
+                        com_pitch = cur_pitch * 20.0 - 20.0
+
                         self.audio_config = texttospeech.AudioConfig(
                             audio_encoding=texttospeech.AudioEncoding.LINEAR16,
                             # audio_encoding=texttospeech.AudioEncoding.ALAW,
                             speaking_rate=cur_speed,
-                            pitch=cur_pitch,
+                            pitch=com_pitch,
                             volume_gain_db=tts_volume
                         )
 
@@ -331,7 +333,7 @@ class TTSReadThread(QThread):
                         time.sleep(0.2)
                 except:
                     pass
-                    # print("TTS Error!")
+                    print("TTS Error!")
             time.sleep(0.2)
 
     def stop(self):
@@ -413,10 +415,10 @@ class Thread(QThread):
 
                     # 새로운 id인 경우 dict에 기본 정보 추가
                     if not self.user_info.get(user_id):
-                        self.user_info[user_id] = [1.0, 1.0, 0.0]
+                        self.user_info[user_id] = [1.0, 1.0, 1.0]
                         cur_type = 1
                         cur_speed = 1.0
-                        cur_pitch = 0.0
+                        cur_pitch = 1.0
                     else:
                         [cur_type, cur_speed, cur_pitch] = self.user_info[user_id]
 
@@ -474,8 +476,10 @@ class Thread(QThread):
 
                     msg_cnt += 1
             except:
-                pass
-                # print("IRC Error!")
+                QMessageBox.about(self, 'Error', 'IRC error!')
+                self.power = False
+                self.quit()
+                self.wait(2000)
 
             time.sleep(0.05)
 
