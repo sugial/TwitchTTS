@@ -230,6 +230,29 @@ class TTSReadThread(QThread):
                     [user_id, content, cur_type, cur_speed, cur_pitch] = self.queue.get()
                     # print (self.queue.get(), self.queue.qsize())
 
+                    # 금칙어 업데이트
+                    self.bantxt = self.parent.bantxt
+                    self.banid = self.parent.banid
+
+                    # 밴리스트 스킵
+                    if user_id in self.banid:
+                        continue
+
+                    # 금칙어 목록
+                    ifban = False
+                    if len(self.bantxt) > 0:
+                        for t in self.bantxt:
+                            idx = content.find(t)
+                            if idx >= 0:
+                                ifban = True
+                                break
+
+                    if ifban:
+                        ifban = False
+                        continue
+
+
+
                     self.doTTS = self.parent.ttsEnable  # TTS 허용
                     tts_volume = self.parent.ttsVolume
 
@@ -507,6 +530,9 @@ class MyApp(QWidget, from_class):
         self.read_user_info()
         self.init_voice_stat()
 
+        self.banid = []
+        self.bantxt = []
+
         self.oldComboText = next(iter(self.user_dict))
 
         self.ttsVolume = 0.0
@@ -523,6 +549,9 @@ class MyApp(QWidget, from_class):
         self.pushButton_reloaduser.clicked.connect(self.user_reload)
         self.pushButton_random.clicked.connect(self.tts_custom_randomize)
         self.pushButton_ttsapi.clicked.connect(self.open_google_tts)
+
+        self.pushButton_bantxt.clicked.connect(self.update_bantxt)
+        self.pushButton_banid.clicked.connect(self.update_banid)
 
         self.comboBox.activated[str].connect(self.read_custom_voice)
 
@@ -651,6 +680,18 @@ class MyApp(QWidget, from_class):
 
         # print (self.user_dict)
         f.close()
+        # pass
+
+    def update_bantxt(self):
+        text = self.plainTextEdit_bantxt.toPlainText()
+        self.bantxt = text.split("\n")
+        # print (self.bantxt)
+        # pass
+
+    def update_banid(self):
+        text = self.plainTextEdit_banid.toPlainText()
+        self.banid = text.split("\n")
+        # print(self.banid)
         # pass
 
     def delete_queue(self):

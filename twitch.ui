@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>381</width>
-    <height>211</height>
+    <width>382</width>
+    <height>338</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -335,6 +335,78 @@
    </property>
    <property name="text">
     <string>&lt;- 먼저 누르고 json 파일 열기</string>
+   </property>
+  </widget>
+  <widget class="QPlainTextEdit" name="plainTextEdit_bantxt">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>210</y>
+     <width>161</width>
+     <height>91</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_6">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>310</y>
+     <width>81</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>금칙어 리스트</string>
+   </property>
+  </widget>
+  <widget class="QPlainTextEdit" name="plainTextEdit_banid">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>210</y>
+     <width>161</width>
+     <height>91</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_7">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>310</y>
+     <width>81</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TTS 밴 리스트</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_bantxt">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>310</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>업데이트</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_banid">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>310</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>업데이트</string>
    </property>
   </widget>
  </widget>
