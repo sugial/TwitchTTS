@@ -23,7 +23,7 @@ pip install --upgrade google-cloud-texttospeech
 
 2. 상단 링크의 내용 중 **2) API 설정하기** 까지만 수행해주세요.
 
-2-1. 다음 링크에서 **.json 파일**을 생성 후 저장해주세요. (https://noanomal.tistory.com/entry/%EA%B5%AC%EA%B8%80-%EB%B2%88%EC%97%AD-api-%EC%82%AC%EC%9A%A9%EC%9D%84-%EC%9C%84%ED%95%9C-json-%ED%82%A4-%ED%8C%8C%EC%9D%BC-%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C-%EB%B0%A9%EB%B2%95)
+2-1. 다음 링크에서 **.json 파일**을 생성 후 저장해주세요. 해당 링크의 10번 항목부터 진행하시면 됩니다. (https://noanomal.tistory.com/entry/%EA%B5%AC%EA%B8%80-%EB%B2%88%EC%97%AD-api-%EC%82%AC%EC%9A%A9%EC%9D%84-%EC%9C%84%ED%95%9C-json-%ED%82%A4-%ED%8C%8C%EC%9D%BC-%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C-%EB%B0%A9%EB%B2%95)
 
 3. 생성된 비공개 **.json 파일**을 저장해주세요. 프로그램 실행시 필요합니다.
 
