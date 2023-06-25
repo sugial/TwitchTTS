@@ -272,13 +272,11 @@ class TTSReadThread(QThread):
 
                     # print('volume', tts_volume)
 
+                    # 50글자 이상 or !로 시작하는 명령어 스킵
+                    if len(content) > 50 or (len(content) > 0 and content[0] == '!'):  
+                        self.doTTS = False
+
                     if len(content) > 0 and self.doTTS:
-                        if len(content) > 50:  # 50글자 이상은 스킵
-                            continue
-                        if content[0] == '!': # !로 시작하는 명령어 스킵
-                            continue
-
-
                         # Select the type of audio file you want returned
 
                         # if len(self.chkKor.findall(content[:10])) > 0:
