@@ -267,7 +267,7 @@ class TTSReadThread(QThread):
                     if ~idskipflg:
                         # 밴리스트 스킵
                         if user_id in self.banid:
-                            print('continue')
+                            # print('continue')
                             self.doTTS = False
 
                     # print('volume', tts_volume)
