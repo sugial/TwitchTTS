@@ -1,7 +1,12 @@
 # TwitchTTS
 트위치 채팅 읽어주는 프로그램
 
-다운 링크 ([https://github.com/sugial/TwitchTTS/releases/download/TwitchTTS_Fixed/TwitchTTS.zip](https://github.com/sugial/TwitchTTS/releases/download/TwitchTTS_Fixed/TwitchTTS.zip)) 23.06.25 수정
+다운 링크 ([https://github.com/sugial/TwitchTTS/releases/download/TwitchTTS_Fixed/TwitchTTS.zip](https://github.com/sugial/TwitchTTS/releases/download/TwitchTTS_Fixed/TwitchTTS.zip))
+
+
+23.06.25 : 금칙어, 밴리스트를 저장해서 불러오는 기능 추가
+
+23.06.26 : !로 시작하는 명령어 입력시 다음 채팅 못 읽는 버그 수정
 
 ## 설치법
 ### 필요사양 (실행 안될 시 컴파일 용)
