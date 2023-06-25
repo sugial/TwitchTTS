@@ -1,7 +1,7 @@
 # TwitchTTS
 트위치 채팅 읽어주는 프로그램
 
-다운 링크 ([https://github.com/sugial/TwitchTTS/releases/download/Add_banlist/TwitchTTS.zip](https://github.com/sugial/TwitchTTS/releases/download/TwitchTTS_Fixed/TwitchTTS.zip)) 23.06.25 수정
+다운 링크 ([https://github.com/sugial/TwitchTTS/releases/download/TwitchTTS_Fixed/TwitchTTS.zip](https://github.com/sugial/TwitchTTS/releases/download/TwitchTTS_Fixed/TwitchTTS.zip)) 23.06.25 수정
 
 ## 설치법
 ### 필요사양 (실행 안될 시 컴파일 용)
