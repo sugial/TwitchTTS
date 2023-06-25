@@ -5,6 +5,7 @@ import random
 import time
 import struct
 import numpy
+import threading
 
 from queue import Queue
 import sounddevice as sd
@@ -20,6 +21,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
 from_class = uic.loadUiType("twitch.ui")[0]
+lock = threading.Lock()
 
 class TTSReadThread(QThread):
     def __init__(self, parent):
@@ -225,6 +227,7 @@ class TTSReadThread(QThread):
 
     def run(self):
         while self.power:
+            lock.acquire()
             if self.queue.qsize() > 0:
                 try:
                     [user_id, content, cur_type, cur_speed, cur_pitch] = self.queue.get()
@@ -234,27 +237,38 @@ class TTSReadThread(QThread):
                     self.bantxt = self.parent.bantxt
                     self.banid = self.parent.banid
 
-                    # 밴리스트 스킵
-                    if user_id in self.banid:
-                        continue
+                    # 금칙어 리스트 체크
+                    txtskipflg = False
+                    if (len(self.bantxt) == 1 and self.bantxt[0] == '') or len(self.bantxt) == 0:
+                        txtskipflg = True
 
                     # 금칙어 목록
                     ifban = False
-                    if len(self.bantxt) > 0:
-                        for t in self.bantxt:
-                            idx = content.find(t)
-                            if idx >= 0:
-                                ifban = True
-                                break
-
-                    if ifban:
-                        ifban = False
-                        continue
-
-
+                    if ~txtskipflg:  # 스킵 아닌 경우만 ifban 처리
+                        if len(self.bantxt) > 0:
+                            for t in self.bantxt:
+                                idx = content.find(t)
+                                if idx >= 0:
+                                    ifban = True
+                                    break
 
                     self.doTTS = self.parent.ttsEnable  # TTS 허용
                     tts_volume = self.parent.ttsVolume
+
+                    # 금칙어 스킵
+                    if ifban:
+                        self.doTTS = False
+
+                    # 밴 id 리스트 체크
+                    idskipflg = False
+                    if (len(self.banid) == 1 and self.banid[0] == '') or len(self.banid) == 0:
+                        idskipflg = True
+
+                    if ~idskipflg:
+                        # 밴리스트 스킵
+                        if user_id in self.banid:
+                            print('continue')
+                            self.doTTS = False
 
                     # print('volume', tts_volume)
 
@@ -325,7 +339,7 @@ class TTSReadThread(QThread):
                                 v_name = "en-US-Wavenet-B"
 
                         self.voice = texttospeech.VoiceSelectionParams(
-                            language_code=v_name,
+                            language_code=v_code,
                             # ssml_gender=1,
                             name=v_name  # name을 바꾸는 것으로 성별 및 목소리 타입 변경 가능
                             # 가능한 name은 ko-KR-Standard-A, ko-KR-Wavenet-A로 ABCD 4종류, CD가 남자
@@ -358,6 +372,7 @@ class TTSReadThread(QThread):
                     pass
                     print("TTS Error!")
             time.sleep(0.2)
+            lock.release()
 
     def stop(self):
         self.power = False
@@ -381,7 +396,7 @@ class Thread(QThread):
 
         self.user_info = parent.user_dict
 
-        self.connectIRC()
+        # self.connectIRC()
 
         self.data = ""
 
@@ -394,14 +409,19 @@ class Thread(QThread):
         NICK = "justinfan12345678912345"  # 채팅 안쓰고 접속만 할 수 있음
         self.CHAN = "#" + str(self.parent.lineEdit.text())
 
-        # self.s = socket.socket()
-        self.s.connect((HOST, PORT))
-        self.s.send("NICK {}\r\n".format(NICK).encode())
-        self.s.send("CAP REQ :twitch.tv/tags twitch.tv/commands\r\n".encode())
-        self.s.send("JOIN {}\r\n".format(self.CHAN).encode())
+        lock.acquire()
+        try:
+            self.s.connect((HOST, PORT))
+            self.s.send("NICK {}\r\n".format(NICK).encode())
+            self.s.send("CAP REQ :twitch.tv/tags twitch.tv/commands\r\n".encode())
+            self.s.send("JOIN {}\r\n".format(self.CHAN).encode())
+        except:
+            pass
+        lock.release()
 
     def run(self):
         cnt = 0
+        self.connectIRC()
         # print (self.user_info)
         while self.power:
             try:
@@ -485,6 +505,7 @@ class Thread(QThread):
                     content = re.sub(r'z{3,}', 'zzz', content)
                     content = re.sub(r'Z{3,}', 'ZZZ', content)
                     content = re.sub(r'@{4,}', '@@@@', content)
+                    content = re.sub(r'\?{3,}', '??', content)
                     # 'https?:\\(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)'
                     # print(nickname, user_id, ":", content)
 
@@ -495,7 +516,9 @@ class Thread(QThread):
                     if self.queue.qsize() > 20:
                         continue
 
+                    lock.acquire()
                     self.queue.put([user_id, content, cur_type, cur_speed, cur_pitch])
+                    lock.release()
 
                     msg_cnt += 1
             except:
@@ -505,6 +528,7 @@ class Thread(QThread):
                 self.wait(2000)
 
             time.sleep(0.05)
+
 
     def stop(self):
         self.power = False
@@ -525,6 +549,7 @@ class MyApp(QWidget, from_class):
 
         self.chat_queue = Queue()
         self.s = socket.socket()  # socket
+        # self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         self.user_dict = {}
         self.read_user_info()
@@ -532,6 +557,10 @@ class MyApp(QWidget, from_class):
 
         self.banid = []
         self.bantxt = []
+
+        # 금칙어/밴아이디 초기화
+        self.init_bantxt()
+        self.init_banid()
 
         self.oldComboText = next(iter(self.user_dict))
 
@@ -680,19 +709,54 @@ class MyApp(QWidget, from_class):
 
         # print (self.user_dict)
         f.close()
-        # pass
+
+    def init_bantxt(self):
+        f = open('bantext.txt', 'r', encoding='UTF8')  # 등록 인원수, 각 정보
+        banText = f.read() # 파일 내용 읽고
+        f.close()
+
+        self.plainTextEdit_bantxt.setPlainText(banText) # 화면에 출력 후
+
+        text = self.plainTextEdit_bantxt.toPlainText()
+        self.bantxt = text.split("\n") # 금칙어 목록에 추가
+
+        if self.bantxt[-1] == '': # 마지막칸 공백이면 제거
+            self.bantxt = self.bantxt[:-1]
 
     def update_bantxt(self):
         text = self.plainTextEdit_bantxt.toPlainText()
         self.bantxt = text.split("\n")
-        # print (self.bantxt)
-        # pass
+
+        if self.bantxt[-1] == '': # 마지막칸 공백이면 제거
+            self.bantxt = self.bantxt[:-1]
+
+        f = open('bantext.txt', 'w', encoding='UTF8')  # 등록 인원수, 각 정보
+        f.write('%s' % self.plainTextEdit_bantxt.toPlainText())
+        f.close()
+
+    def init_banid(self):
+        f = open('banid.txt', 'r', encoding='UTF8')  # 등록 인원수, 각 정보
+        banText = f.read() # 파일 내용 읽고
+        f.close()
+
+        self.plainTextEdit_banid.setPlainText(banText) # 화면에 출력 후
+
+        text = self.plainTextEdit_banid.toPlainText()
+        self.banid = text.split("\n") # 금칙어 목록에 추가
+
+        if self.banid[-1] == '': # 마지막칸 공백이면 제거
+            self.banid = self.banid[:-1]
 
     def update_banid(self):
         text = self.plainTextEdit_banid.toPlainText()
         self.banid = text.split("\n")
-        # print(self.banid)
-        # pass
+
+        if self.banid[-1] == '': # 마지막칸 공백이면 제거
+            self.banid = self.banid[:-1]
+
+        f = open('banid.txt', 'w', encoding='UTF8')  # 등록 인원수, 각 정보
+        f.write('%s' % self.plainTextEdit_banid.toPlainText())
+        f.close()
 
     def delete_queue(self):
         while self.chat_queue.qsize() > 0:
